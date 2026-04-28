@@ -20,7 +20,7 @@ aunque la captura sea de otro usuario.
 
 **Pasos:**
 1. Visita `http://localhost:8181/capture` → redirige a `/data/<N>` (tuya, vacía)
-2. Cambia la URL a `http://localhost/data/0` → captura pre-seeded con credenciales FTP
+2. Cambia la URL a `http://localhost:8181/data/0` → captura pre-seeded con credenciales FTP
 3. Descarga el `.pcap` y ábrelo con Wireshark
 4. Filtra por `ftp` → ves `USER nathan` y `PASS Buck3tH4TF0RM3!` en texto plano
 
