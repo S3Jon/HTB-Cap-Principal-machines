@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Principal - Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:#f1f5f9;display:flex;}
+.sidebar{width:220px;background:#0f172a;color:white;min-height:100vh;padding:0;flex-shrink:0;}
+.sidebar-header{padding:20px;border-bottom:1px solid #1e293b;}
+.sidebar-header .logo{width:36px;height:36px;background:#2563eb;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:bold;margin-bottom:10px;}
+.sidebar-header h3{font-size:0.9em;font-weight:700;}
+.sidebar-header p{font-size:0.65em;color:#64748b;letter-spacing:2px;text-transform:uppercase;}
+.nav a{display:block;padding:12px 20px;color:#94a3b8;text-decoration:none;font-size:0.85em;border-left:3px solid transparent;}
+.nav a:hover,.nav a.active{color:white;background:#1e293b;border-left-color:#2563eb;}
+.content{flex:1;padding:30px;}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;}
+.topbar h2{font-size:1.4em;color:#1e293b;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-bottom:25px;}
+.stat-card{background:white;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+.stat-card .val{font-size:2em;font-weight:700;color:#1e293b;}
+.stat-card .lbl{font-size:0.8em;color:#64748b;margin-top:3px;}
+.card{background:white;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);margin-bottom:20px;}
+.card h3{margin-bottom:15px;color:#1e293b;font-size:1em;}
+.ann{border-left:3px solid #2563eb;padding:10px 15px;margin-bottom:10px;background:#f8fafc;}
+.ann h4{font-size:0.9em;color:#1e293b;}
+.ann p{font-size:0.8em;color:#64748b;margin-top:3px;}
+.ann .date{font-size:0.75em;color:#94a3b8;margin-top:5px;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:10px 12px;text-align:left;font-size:0.85em;border-bottom:1px solid #e2e8f0;}
+th{color:#64748b;font-weight:500;background:#f8fafc;}
+td{color:#374151;}
+.badge{padding:2px 8px;border-radius:12px;font-size:0.75em;font-weight:500;}
+.badge.admin{background:#fef3c7;color:#92400e;}
+.badge.user{background:#dbeafe;color:#1e40af;}
+.badge.manager{background:#d1fae5;color:#065f46;}
+.badge.deployer{background:#ede9fe;color:#5b21b6;}
+.badge.active{background:#d1fae5;color:#065f46;}
+.badge.disabled{background:#fee2e2;color:#991b1b;}
+.settings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.settings-section h4{font-size:0.85em;font-weight:600;color:#374151;margin-bottom:12px;padding-bottom:5px;border-bottom:1px solid #e2e8f0;}
+.setting-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.82em;}
+.setting-row .key{color:#64748b;}
+.setting-row .val{color:#1e293b;font-weight:500;}
+.setting-row .highlight{background:#fef9c3;padding:1px 6px;border-radius:4px;color:#854d0e;}
+#dashboard-tab,.tab-content{display:none;}
+#dashboard-tab{display:block;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">P</div>
+    <h3>Principal</h3>
+    <p>Internal Platform</p>
+  </div>
+  <div class="nav">
+    <a href="#" class="active" onclick="showTab('dashboard')">Dashboard</a>
+    <a href="#" onclick="showTab('users')">Users</a>
+    <a href="#" onclick="showTab('settings')">Settings</a>
+  </div>
+</div>
+<div class="content">
+  <!-- DASHBOARD TAB -->
+  <div id="tab-dashboard">
+    <div class="topbar"><h2>Dashboard</h2></div>
+    <div class="stats">
+      <div class="stat-card"><div class="val">8</div><div class="lbl">Total Users</div></div>
+      <div class="stat-card"><div class="val">3</div><div class="lbl">Active Deployments</div></div>
+      <div class="stat-card"><div class="val" style="color:#16a34a;">operational</div><div class="lbl">System Health</div></div>
+      <div class="stat-card"><div class="val">99.7%</div><div class="lbl">Uptime</div></div>
+    </div>
+    <div class="card">
+      <h3>Announcements</h3>
+      <div id="announcements"></div>
+    </div>
+  </div>
+
+  <!-- USERS TAB -->
+  <div id="tab-users" style="display:none;">
+    <div class="topbar"><h2>Users</h2></div>
+    <div class="card">
+      <h3>User Management</h3>
+      <table>
+        <thead><tr><th>USERNAME</th><th>NAME</th><th>ROLE</th><th>DEPARTMENT</th><th>STATUS</th><th>NOTES</th></tr></thead>
+        <tbody id="users-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-settings" style="display:none;">
+    <div class="topbar"><h2>Settings</h2></div>
+    <div class="card">
+      <h3>System Settings</h3>
+      <div class="settings-grid" id="settings-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const token = sessionStorage.getItem('auth_token');
+if (!token) window.location.href = '/';
+
+function showTab(name) {
+  ['dashboard','users','settings'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name ? 'block':'none';
+  });
+  document.querySelectorAll('.nav a').forEach((a,i) => a.classList.remove('active'));
+  const idx = ['dashboard','users','settings'].indexOf(name);
+  document.querySelectorAll('.nav a')[idx].classList.add('active');
+  if(name==='users') loadUsers();
+  if(name==='settings') loadSettings();
+}
+
+async function apiFetch(url) {
+  const res = await fetch(url, {headers:{'Authorization':'Bearer '+token}});
+  if(res.status===401){window.location.href='/'; return null;}
+  return res.ok ? res.json() : null;
+}
+
+// Load dashboard
+apiFetch('/api/dashboard').then(data => {
+  if(!data) return;
+  const el = document.getElementById('announcements');
+  (data.announcements||[]).forEach(a => {
+    el.innerHTML += `<div class="ann"><h4>${a.title}</h4><p>${a.body}</p><div class="date">${a.date}</div></div>`;
+  });
+});
+
+function roleBadge(r){
+  const cls={ROLE_ADMIN:'admin',ROLE_USER:'user',ROLE_MANAGER:'manager',deployer:'deployer'}[r]||'user';
+  return `<span class="badge ${cls}">${r}</span>`;
+}
+
+async function loadUsers(){
+  const data = await apiFetch('/api/users');
+  if(!data) return;
+  const tbody = document.getElementById('users-tbody');
+  tbody.innerHTML = '';
+  (data.users||[]).forEach(u => {
+    tbody.innerHTML += `<tr>
+      <td>${u.username}</td><td>${u.name}</td>
+      <td>${roleBadge(u.role)}</td><td>${u.department}</td>
+      <td><span class="badge ${u.status.toLowerCase()}">${u.status}</span></td>
+      <td style="color:#64748b;font-size:0.8em;">${u.notes||''}</td>
+    </tr>`;
+  });
+}
+
+async function loadSettings(){
+  const data = await apiFetch('/api/settings');
+  if(!data) return;
+  const grid = document.getElementById('settings-grid');
+  const sections = [
+    {title:'System', obj:data.system},
+    {title:'Security', obj:data.security},
+    {title:'Infrastructure', obj:data.infrastructure}
+  ];
+  grid.innerHTML = '';
+  sections.forEach(s => {
+    let html = `<div><div class="settings-section"><h4>${s.title}</h4>`;
+    Object.entries(s.obj).forEach(([k,v]) => {
+      const isHighlight = k==='encryptionKey';
+      html += `<div class="setting-row"><span class="key">${k}</span><span class="${isHighlight?'highlight':'val'}">${v}</span></div>`;
+    });
+    html += '</div></div>';
+    grid.innerHTML += html;
+  });
+}
+</script>
+</body>
+</html>
