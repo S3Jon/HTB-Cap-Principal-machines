@@ -145,3 +145,9 @@ cat /root/root.txt
 ## Flags
 - User flag: `/home/svc-deploy/user.txt`
 - Root flag: `/root/root.txt`
+
+## Clean
+Al terminar borrar el contenedor 
+```bash
+sh clean.sh
+```
