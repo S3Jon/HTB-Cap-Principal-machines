@@ -4,15 +4,12 @@
 
 ```bash
 # Construir
-docker build -t htb-principal .
-
-# Ejecutar
-docker run -d -p 22:22 -p 8080:8080 --name principal htb-principal
+sh start.sh
 ```
 
 ## Acceso
 - Web: http://localhost:8080
-- SSH: localhost:22
+- SSH: localhost:2222
 
 ---
 
@@ -25,6 +22,7 @@ Si ese JWT tiene `alg: none` (PlainJWT), el verificador devuelve `null` para `si
 y el bloque `if (signedJWT != null)` salta la verificación de firma por completo.
 
 **Exploit script (`exploit_jwt.py`):**
+Presente en items/principal_script.py
 ```python
 #!/usr/bin/env python3
 import json, time, base64, requests, sys
