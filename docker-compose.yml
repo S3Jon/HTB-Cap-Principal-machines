@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  cap:
+    build:
+      context: ./cap
+      dockerfile: Dockerfile
+    container_name: cap
+    networks:
+      htblab:
+        ipv4_address: 172.20.0.10
+    privileged: true
+    restart: unless-stopped
+
+  principal:
+    build:
+      context: ./principal
+      dockerfile: Dockerfile
+    container_name: principal
+    networks:
+      htblab:
+        ipv4_address: 172.20.0.20
+    restart: unless-stopped
+
+networks:
+  htblab:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
